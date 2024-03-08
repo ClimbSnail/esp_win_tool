@@ -21,6 +21,7 @@ import traceback
 
 import serial  # pip install pyserial
 import serial.tools.list_ports
+from serial.serialutil import SerialBase, SerialException, to_bytes, PortNotOpenError
 # from PyQt5.Qt import *
 from PyQt5.Qt import QWidget, QApplication
 from PyQt5 import uic, QtCore
@@ -40,7 +41,6 @@ if SH_SN == None and os.path.exists("SnailHeater_SN.py"):
     print("激活模块已添加")
 
 COLOR_RED = '<span style=\" color: #ff0000;\">%s</span>'
-BAUD_RATE = 921600
 INFO_BAUD_RATE = 115200
 
 cur_dir = os.getcwd()  # 当前目录
@@ -66,6 +66,8 @@ main_app_addr = win_cfg["main_app_addr"] \
     if "main_app_addr" in win_cfg.keys() else ""
 main_app_rules = win_cfg["main_app_rules"] \
     if "main_app_rules" in win_cfg.keys() else ""
+baud_rate = win_cfg["baud_rate"] \
+    if "baud_rate" in win_cfg.keys() else ""
 temp_sn_recode_path = win_cfg["temp_sn_recode_path"] \
     if "temp_sn_recode_path" in win_cfg.keys() else cur_dir
 
@@ -253,9 +255,8 @@ class DownloadController(object):
                 self.print_log("激活成功")
             else:
                 self.print_log("激活失败")
-        self.ser.close()  # 关闭串口
-        del self.ser
-        self.ser = None
+
+        self.release_serial()
 
     def query_button_click(self):
         """
@@ -314,6 +315,8 @@ class DownloadController(object):
         if select_com == None or firmware_path == "":
             if firmware_path == "":
                 self.print_log((COLOR_RED % "错误提示：") + "未查询到固件文件！")
+            if select_com == None:
+                self.print_log((COLOR_RED % "错误提示：") + "串口异常")
             self.form.UpdatePushButton.setEnabled(True)
             self.form.UpdateModeMethodRadioButton.setEnabled(True)
             self.form.ClearModeMethodRadioButton.setEnabled(True)
@@ -334,7 +337,7 @@ class DownloadController(object):
         file_list.append(firmware_path)
         
         for filepath in file_list:
-            all_time = all_time + os.path.getsize(filepath) * 10 / BAUD_RATE
+            all_time = all_time + os.path.getsize(filepath) * 10 / int(baud_rate)
 
 
         self.print_log("刷机预计需要：" + (COLOR_RED % (str(all_time)[0:5] + "s")))
@@ -360,7 +363,6 @@ class DownloadController(object):
             if self.ser != None:
                 return
 
-            self.ser = 1
             self.progress_bar_time_cnt = 1  # 间接启动进度条更新
 
             if mode == "清空式":
@@ -374,10 +376,10 @@ class DownloadController(object):
                 except Exception as e:
                     self.print_log(COLOR_RED % "错误：通讯异常。")
                     pass
-            
+            # python .\esptoolpy\esptool.py --port COM8 --baud 921600 write_flash 0x00000000 ./base_data/QF-HEYE_Firmware_V1.0.2_bootloader.bin 0x8000 ./base_data/QF-HEYE_Firmware_V1.0.2_partition-table.bin 0x10000 QF-HEYE_Firmware_V1.0.5_app.bin
             #  --port COM7 --baud 921600 write_flash -fm dio -fs 4MB 0x1000 bootloader_dio_40m.bin 0x00008000 partitions.bin 0x0000e000 boot_app0.bin 0x00010000
             cmd = ['--port', select_com,
-                   '--baud', str(BAUD_RATE),
+                   '--baud', baud_rate,
                    'write_flash', main_app_addr, firmware_path
                    ]
             for bin_obj in firmware_info_list:
@@ -390,15 +392,13 @@ class DownloadController(object):
             try:
                 esptool.main(cmd)
             except Exception as e:
-                self.print_log(COLOR_RED % "错误：通讯异常。")
+                self.print_log(COLOR_RED % "错误：通讯异常。检查设备或稍后再试！")
                 return False
-            self.ser = None
 
             # self.esp_reboot()  # 手动复位芯片
             self.print_log(COLOR_RED % "刷机结束！")
 
         except Exception as err:
-            self.ser = None
             self.print_log(COLOR_RED % "未释放资源，请15s后再试。如无法触发下载，拔插type-c接口再试。")
             print(err)
 
@@ -435,10 +435,21 @@ class DownloadController(object):
                 # common.kill_thread(self.download_thread, self.down_action)
                 common._async_raise(self.download_thread)
                 self.download_thread = None
+                self.release_serial()
+                
+                # ports = serial.tools.list_ports.comports()
+                # self.ser = serial.serial_for_url(ports[0].device)
+                # self.ser.reset_input_buffer()
+                # self.ser.close()
+                # try:
+                #     self.ser = serial.Serial(ports[0].device, INFO_BAUD_RATE, timeout=10)
+                # except Exception as err:
+                #     print("串口关闭错误")
+                #     print(err)
             except Exception as err:
                 print(err)
 
-        self.scan_com()
+        # self.scan_com()
 
         # 复位进度条
         self.progress_bar_time_cnt = 0
@@ -447,6 +458,15 @@ class DownloadController(object):
         self.form.UpdatePushButton.setEnabled(True)
         self.form.UpdateModeMethodRadioButton.setEnabled(True)
         self.form.ClearModeMethodRadioButton.setEnabled(True)
+    
+    def release_serial(self):
+        """
+        关闭串口
+        """
+        if self.ser != None:
+            self.ser.close()  # 关闭串口
+            del self.ser
+            self.ser = None
 
     def get_firmware_version(self):
         """
@@ -479,8 +499,14 @@ class DownloadController(object):
         if select_com == None:
             return None
 
-        self.ser = serial.Serial(select_com, INFO_BAUD_RATE, timeout=10)
         machine_code = "查询失败"
+        try:
+            self.ser = serial.Serial(select_com, INFO_BAUD_RATE, timeout=10)
+        except Exception as err:
+            print(err)
+            self.print_log((COLOR_RED % "串口打开失败"))
+            return machine_code
+
 
         # 判断是否打开成功
         if self.ser.is_open:
@@ -490,9 +516,8 @@ class DownloadController(object):
 
             search_info = bytes(GET_ID_INFO, encoding='utf8')
             print(search_info)
-            self.print_log("write start")
+            self.print_log("正在查询机器码")
             self.ser.write(search_info)
-            self.print_log("write OK")
 
             time.sleep(1)
             if self.ser.in_waiting:
@@ -510,9 +535,7 @@ class DownloadController(object):
             else:
                 self.print_log("机器码查询成功")
 
-        self.ser.close()  # 关闭串口
-        del self.ser
-        self.ser = None
+        self.release_serial()
         return machine_code
 
     def get_sn(self):
@@ -523,8 +546,12 @@ class DownloadController(object):
         if select_com == None:
             return None
 
-        self.ser = serial.Serial(select_com, INFO_BAUD_RATE, timeout=10)
         sn = ""
+        try:
+            self.ser = serial.Serial(select_com, INFO_BAUD_RATE, timeout=10)
+        except Exception as err:
+            self.print_log((COLOR_RED % "串口打开失败"))
+            return sn
 
         # 判断是否打开成功
         if self.ser.is_open:
@@ -551,9 +578,9 @@ class DownloadController(object):
                 self.print_log((COLOR_RED % "SN查询失败"))
             else:
                 self.print_log("SN查询成功")
-        self.ser.close()  # 关闭串口
-        del self.ser
-        self.ser = None
+
+        self.release_serial()
+
         return sn
 
     def print_log(self, info):
@@ -571,7 +598,7 @@ class DownloadController(object):
         select_com = self.getSafeCom()
         if select_com == None:
             return None
-        self.ser = serial.Serial(select_com, BAUD_RATE, timeout=10)
+        self.ser = serial.Serial(select_com, baud_rate, timeout=10)
 
         # self.ser.setRTS(True)  # EN->LOW
         # self.ser.setDTR(self.ser.dtr)
@@ -588,9 +615,7 @@ class DownloadController(object):
         time.sleep(0.05)  # 0.5 / 0.05
         self._setDTR(False)  # IO0=HIGH, done
 
-        self.ser.close()  # 关闭串口
-        del self.ser
-        self.ser = None
+        self.release_serial()
 
     def schedule_display_time(self):
         if self.progress_bar_time_cnt > 0 and self.progress_bar_time_cnt < 99:
