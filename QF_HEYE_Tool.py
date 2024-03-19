@@ -29,7 +29,9 @@ from PyQt5.QtWidgets import QMessageBox, QApplication, QMainWindow, QFileDialog
 from PyQt5.QtCore import Qt
 
 import massagehead as mh
-from esptoolpy import esptool
+sys.path.append("./esptool_v470")
+import esptool # sys.path.append("./esptool_v470") or pip install esptool
+# from esptoolpy import esptool
 # from esptoolpy import espefuse
 from download import Ui_SanilHeaterTool
 import common
@@ -380,6 +382,7 @@ class DownloadController(object):
             #  --port COM7 --baud 921600 write_flash -fm dio -fs 4MB 0x1000 bootloader_dio_40m.bin 0x00008000 partitions.bin 0x0000e000 boot_app0.bin 0x00010000
             cmd = ['--port', select_com,
                    '--baud', baud_rate,
+                   '--after', 'hard_reset',
                    'write_flash', main_app_addr, firmware_path
                    ]
             for bin_obj in firmware_info_list:
