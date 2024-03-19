@@ -396,6 +396,12 @@ class DownloadController(object):
                 esptool.main(cmd)
             except Exception as e:
                 self.print_log(COLOR_RED % "错误：通讯异常。检查设备或稍后再试！")
+
+                self.progress_bar_time_cnt = 0  # 复位进度条
+
+                self.form.UpdatePushButton.setEnabled(True)
+                self.form.UpdateModeMethodRadioButton.setEnabled(True)
+                self.form.ClearModeMethodRadioButton.setEnabled(True)
                 return False
 
             # self.esp_reboot()  # 手动复位芯片
