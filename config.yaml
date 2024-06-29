@@ -12,6 +12,12 @@ windows_tool:
   
   # 自定义QQ群信息 一共需填写两个群号，中间英文的分号隔开
   qq_info: QQ_1群 216066270,QQ_2群 暂无
+
+  # 是否生效激活组控件
+  activate: true
+
+  # 屏蔽清空式烧录选项
+  empty_burn_enable: false
   
   # 自定义额外的视频或文档链接
   info_url_0: <html><head/><body><p>视频演示：OSHWHub开源页</p></body></html>
@@ -22,9 +28,6 @@ windows_tool:
   main_app_rules: _app.bin
   # 主用户程序的刷写地址
   main_app_addr: "0x10000"
-  # 下载的波特率
-  # baud_rate: "921600"
-  baud_rate: "4000000"
   # 辅助bin文件的
   firmware_info_list:
     # 这里可添加n个bin文件信息（以一行"-"符号隔离），会将指定格式以指定地址刷入
