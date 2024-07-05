@@ -1,8 +1,7 @@
 # encoding: utf-8
 
-# pip install pyserial -i https://mirrors.aliyun.com/pypi/simple/
-# pip install pyqt5  -i https://mirrors.aliyun.com/pypi/simple/
-# pip install pyqt5-tools -i https://mirrors.aliyun.com/pypi/simple/
+# pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
+
 # pyinstaller --icon ./images/开源.ico -w -F QF_HEYE_Tool.py
 
 # 环境搭建学习文旦 https://github.com/Jacob-xyb/PyQt_Notes/blob/master/PyQt5.md
@@ -28,14 +27,6 @@ from PyQt5.QtWidgets import QMessageBox, QApplication, QMainWindow, QFileDialog
 from PyQt5.QtCore import Qt
 
 import massagehead as mh
-
-# if os.path.exists("./esptool_v41"):
-#     sys.path.append("./esptool_v41")
-# else:
-#     sys.path.append("./")
-# import esptool # sys.path.append("./esptool_v41") or pip install esptool==4.1 
-# from esptool_v33 import esptool
-# from esptool_v33 import espefuse
 
 import esptool  # sys.path.append("./esptool_v41") or pip install esptool==4.1
 # 需要修改esptool源码loader.py中得一个文件路径
