@@ -347,11 +347,13 @@ class DownloadController(object):
         else:
             all_time += 5
         
-        file_list = [bin_obj["filepath"] for bin_obj in firmware_info_list]
-        file_list.append(firmware_path)
+        # 辅助bin文件
+        if firmware_info_list != None and firmware_info_list != []:
+            file_list = [bin_obj["filepath"] for bin_obj in firmware_info_list]
+            file_list.append(firmware_path)
         
-        for filepath in file_list:
-            all_time = all_time + os.path.getsize(filepath) * 10 / BAUD_RATE
+            for filepath in file_list:
+                all_time = all_time + os.path.getsize(filepath) * 10 / BAUD_RATE
 
 
         self.print_log("刷机预计需要：" + (COLOR_RED % (str(all_time)[0:5] + "s")))
@@ -398,9 +400,11 @@ class DownloadController(object):
                    '--after', 'hard_reset',
                    'write_flash', main_app_addr, firmware_path
                    ]
-            for bin_obj in firmware_info_list:
-                cmd.append(bin_obj["addr"])
-                cmd.append(bin_obj["filepath"])
+            # 辅助bin文件
+            if firmware_info_list != None and firmware_info_list != []:
+                for bin_obj in firmware_info_list:
+                    cmd.append(bin_obj["addr"])
+                    cmd.append(bin_obj["filepath"])
             
             print("cmd = "+ str(cmd))
 

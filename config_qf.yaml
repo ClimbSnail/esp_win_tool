@@ -8,10 +8,10 @@ windows_tool:
   tool_open_url: "本工具开源地址：https://github.com/ClimbSnail/esp_win_tool"
 
   # 工具的名称
-  tool_name: "蓝星键盘 专用下载工具 "
+  tool_name: "QF_HEYE 专用下载工具 "
   
   # 自定义QQ群信息 一共需填写两个群号，中间英文的分号隔开
-  qq_info: QQ_1群 992743278,QQ_2群 暂无
+  qq_info: QQ_1群 216066270,QQ_2群 暂无
 
   # 是否生效激活组控件
   activate: true
@@ -20,8 +20,8 @@ windows_tool:
   empty_burn_enable: false
   
   # 自定义额外的视频或文档链接
-  info_url_0: <html><head/><body><p>项目主页：https://oshwhub.com/ran-pang/multifunctional-keyboard</p></body></html>
-  info_url_1: <html><head/><body><p>复刻问题：https://docs.qq.com/sheet/DSWZHTUhlR3RTUHJ1</p></body></html>
+  info_url_0: <html><head/><body><p>视频演示：OSHWHub开源页</p></body></html>
+  info_url_1: <html><head/><body><p>用户手册：https://kdocs.cn/l/cabR1eYE2KIK</p></body></html>
   
   # main_app_rules为页面搜索框中搜索主程序的适配规则
   # 下面的匹配规则为 搜索包含 _app.bin 字段
@@ -34,7 +34,7 @@ windows_tool:
     -
       filepath: ./base_data/QF-HEYE_Firmware_V1.0.2_bootloader.bin
       addr: "0x0"
-    -
+    - 
       filepath: ./base_data/QF-HEYE_Firmware_V1.0.2_partition-table.bin
       addr: "0x8000"
       
