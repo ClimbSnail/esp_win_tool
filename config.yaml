@@ -9,6 +9,25 @@ windows_tool:
 
   # 工具的名称
   tool_name: "蓝星键盘 专用下载工具 "
+
+  # 运行的提示信息（只有命令行会显示）
+  tool_start_info: |
+    注：工具如有问题可联系QQ：ClimbSnail
+
+    刷机注意事项：
+      1. 确保安装好 USB-TTL 驱动.
+      2. 插接好接口.
+      3. 按住旋钮中键，同时按下复位按键松开，然后再松开旋钮中键，则会进入刷机模式.
+    
+    准备好后敲下回车键继续。
+  
+  # 刷机结束的提示信息
+  tool_end_info: |
+
+    刷机流程完毕，请保持通电等待屏幕将会亮起后才能断电。
+
+    注：更新式刷机一般刷机完成后2s就能亮屏，清空式刷机则需等待10s左右。
+    若无法刷机成功，先确认 USB-TTL 驱动以及连接线是否正常，重新打开软件执行刷机。
   
   # 自定义QQ群信息 一共需填写两个群号，中间英文的分号隔开
   qq_info: QQ_1群 992743278,QQ_2群 暂无
@@ -16,7 +35,7 @@ windows_tool:
   # 是否生效激活组控件
   activate: true
 
-  # 屏蔽清空式烧录选项
+  # 清空式烧录选项
   empty_burn_enable: false
   
   # 自定义额外的视频或文档链接
@@ -24,7 +43,8 @@ windows_tool:
   info_url_1: <html><head/><body><p>复刻问题：https://docs.qq.com/sheet/DSWZHTUhlR3RTUHJ1</p></body></html>
   
   # main_app_rules为页面搜索框中搜索主程序的适配规则
-  # 下面的匹配规则为 搜索包含 _app.bin 字段
+  main_appdir_rules: ./
+  # 下面的匹配规则（正则表达式）为 搜索包含 _app.bin 字段
   main_app_rules: _app.bin
   # 主用户程序的刷写地址
   main_app_addr: "0x10000"

@@ -58,6 +58,8 @@ tool_open_url = win_cfg["tool_open_url"] \
     if "tool_open_url" in win_cfg.keys() else "https://github.com/ClimbSnail"
 tool_name = win_cfg["tool_name"] \
     if "tool_name" in win_cfg.keys() else "未命名工具"
+tool_end_info = win_cfg["tool_end_info"] \
+    if "tool_end_info" in win_cfg.keys() else ""
 info_url_0 = win_cfg["info_url_0"] \
     if "info_url_0" in win_cfg.keys() else ""
 info_url_1 = win_cfg["info_url_1"] \
@@ -70,10 +72,12 @@ empty_burn_enable = win_cfg["empty_burn_enable"] \
     if "empty_burn_enable" in win_cfg.keys() else True
 firmware_info_list = win_cfg["firmware_info_list"] \
     if "firmware_info_list" in win_cfg.keys() else []
-main_app_addr = win_cfg["main_app_addr"] \
-    if "main_app_addr" in win_cfg.keys() else ""
+main_appdir_rules = win_cfg["main_appdir_rules"] \
+    if "main_appdir_rules" in win_cfg.keys() else "./"
 main_app_rules = win_cfg["main_app_rules"] \
     if "main_app_rules" in win_cfg.keys() else ""
+main_app_addr = win_cfg["main_app_addr"] \
+    if "main_app_addr" in win_cfg.keys() else ""
 temp_sn_recode_path = win_cfg["temp_sn_recode_path"] \
     if "temp_sn_recode_path" in win_cfg.keys() else cur_dir
 
@@ -195,17 +199,24 @@ class DownloadController(object):
         """
         搜索固件
         """
+        global main_appdir_rules
         global main_app_rules
         # 目前无服务器
         # ver = self.get_firmware_version()
         self.print_log("搜索同目录下的可用固件...")
         self.form.FirmwareComboBox.clear()
+        
         # 列出文件夹下所有的目录与文件
-        list_file = os.listdir("./")
+        list_file = os.listdir(main_appdir_rules)
         firmware_path_list = []
-        for file_name in list_file:
-            if main_app_rules in file_name:
-                firmware_path_list.append(file_name.strip())
+        for filename in list_file:
+            match_info = re.findall(main_app_rules, filename)
+            if match_info != []:
+                firmware_path_list.append(os.path.join(main_appdir_rules, filename))
+
+        # for file_name in list_file:
+        #     if main_app_rules in file_name:
+        #         firmware_path_list.append(file_name.strip())
 
         if len(firmware_path_list) == 0:
             firmware_path_list = ["未找到固件"]
@@ -374,6 +385,7 @@ class DownloadController(object):
         :param firmware_path:固件文件路径
         :return:None
         """
+        global tool_end_info
         
         try:
             if self.ser != None:
@@ -418,6 +430,8 @@ class DownloadController(object):
 
             # self.esp_reboot()  # 手动复位芯片
             self.print_log(COLOR_RED % "刷机结束！")
+            self.print_log(tool_end_info)
+            
 
         except Exception as err:
             self.ser = None
