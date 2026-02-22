@@ -2,7 +2,7 @@
 
 # pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
-# pyinstaller --icon ./images/开源.ico -w -F QF_HEYE_Tool.py
+# pyinstaller --icon ./images/open_source.ico -w -F QF_HEYE_Tool.py
 
 # 环境搭建学习文旦 https://github.com/Jacob-xyb/PyQt_Notes/blob/master/PyQt5.md
 # QT官网：https://doc.qt.io/qt-5/index.html
@@ -44,13 +44,11 @@ if SH_SN == None and os.path.exists("SnailHeater_SN.py"):
     print("激活模块已添加")
 
 COLOR_RED = '<span style=\" color: #ff0000;\">%s</span>'
-BAUD_RATE = 921600
-INFO_BAUD_RATE = 115200
 
 cur_dir = os.getcwd()  # 当前目录
 
 # 读取配置信息
-cfg_fp = open("config.yaml", "r", encoding="utf-8")
+cfg_fp = open("esp_greneral_tool.yaml", "r", encoding="utf-8")
 
 win_cfg = yaml.load(cfg_fp, Loader=yaml.SafeLoader)["windows_tool"]
 
@@ -64,6 +62,10 @@ info_url_0 = win_cfg["info_url_0"] \
     if "info_url_0" in win_cfg.keys() else ""
 info_url_1 = win_cfg["info_url_1"] \
     if "info_url_1" in win_cfg.keys() else ""
+download_baud_rate = win_cfg["download_baud_rate"] \
+    if "download_baud_rate" in win_cfg.keys() else ""
+info_baud_rate = win_cfg["info_baud_rate"] \
+    if "info_baud_rate" in win_cfg.keys() else ""
 qq_info = win_cfg["qq_info"].split(",") \
     if "qq_info" in win_cfg.keys() else ["", ""]
 activate = win_cfg["activate"] \
@@ -248,7 +250,7 @@ class DownloadController(object):
             self.print_log(COLOR_RED % "激活操作异常，激活中止...")
             return None
 
-        self.ser = serial.Serial(select_com, INFO_BAUD_RATE, timeout=10)
+        self.ser = serial.Serial(select_com, info_baud_rate, timeout=10)
 
         act_ret = False
 
@@ -306,7 +308,7 @@ class DownloadController(object):
         #             response = requests.get(activate_sn_url + machine_code, timeout=3)  # , verify=False
         #         else:
         #             self.print_log("联网查询激活码...")
-        #             response = requests.get(search_sn_url + machine_code, timeout=3)  # , verify=False
+        #             response = requests.get(search_sn_registrant_url + machine_code, timeout=3)  # , verify=False
         #         # sn = re.findall(r'\d+', response.text)
         #         sn = response.text.strip()
         #         self.print_log("sn " + str(sn))
@@ -364,7 +366,7 @@ class DownloadController(object):
             file_list.append(firmware_path)
         
             for filepath in file_list:
-                all_time = all_time + os.path.getsize(filepath) * 10 / BAUD_RATE
+                all_time = all_time + os.path.getsize(filepath) * 10 / download_baud_rate
 
 
         self.print_log("刷机预计需要：" + (COLOR_RED % (str(all_time)[0:5] + "s")))
@@ -408,7 +410,7 @@ class DownloadController(object):
             
             #  --port COM7 --baud 921600 write_flash -fm dio -fs 4MB 0x1000 bootloader_dio_40m.bin 0x00008000 partitions.bin 0x0000e000 boot_app0.bin 0x00010000
             cmd = ['--port', select_com,
-                   '--baud', str(BAUD_RATE),
+                   '--baud', str(download_baud_rate),
                    '--after', 'hard_reset',
                    'write_flash', main_app_addr, firmware_path
                    ]
@@ -515,7 +517,7 @@ class DownloadController(object):
         if select_com == None:
             return None
 
-        self.ser = serial.Serial(select_com, INFO_BAUD_RATE, timeout=10)
+        self.ser = serial.Serial(select_com, info_baud_rate, timeout=10)
         machine_code = "查询失败"
 
         # 判断是否打开成功
@@ -559,7 +561,7 @@ class DownloadController(object):
         if select_com == None:
             return None
 
-        self.ser = serial.Serial(select_com, INFO_BAUD_RATE, timeout=10)
+        self.ser = serial.Serial(select_com, info_baud_rate, timeout=10)
         sn = ""
 
         # 判断是否打开成功
@@ -607,7 +609,7 @@ class DownloadController(object):
         select_com = self.getSafeCom()
         if select_com == None:
             return None
-        self.ser = serial.Serial(select_com, BAUD_RATE, timeout=10)
+        self.ser = serial.Serial(select_com, download_baud_rate, timeout=10)
 
         # self.ser.setRTS(True)  # EN->LOW
         # self.ser.setDTR(self.ser.dtr)
