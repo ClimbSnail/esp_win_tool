@@ -1,4 +1,10 @@
-# encoding: utf-8
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# python -m venv py38_venv
+# py38_venv\Scripts\activate
+# deactivate
+# pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 # 打包脚本
 # pyinstaller --icon ./images/open_source.ico -F esp_greneral_tool.py
@@ -20,7 +26,7 @@ import io
 import re
 import traceback
 
-TOOL_VERSION = "v1.0.1 Lite"
+TOOL_VERSION = "v1.0.2 Lite"
 
 cur_dir = os.getcwd()  # 当前目录
 

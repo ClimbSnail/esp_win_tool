@@ -1,5 +1,10 @@
-# encoding: utf-8
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
+# python 3.8.6
+# python -m venv py38_venv
+# py38_venv\Scripts\activate
+# deactivate
 # pip install -r requirements.txt -i https://mirrors.aliyun.com/pypi/simple/
 
 # pyinstaller --icon ./images/open_source.ico -w -F QF_HEYE_Tool.py
