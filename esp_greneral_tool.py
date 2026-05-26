@@ -20,13 +20,15 @@ import esptool # pip install esptool==4.7.0 -i https://mirrors.aliyun.com/pypi/s
 # STUBS_DIR = os.path.join(os.path.dirname(__file__), "targets", "stub_flasher")
 # 修改为如下
 # STUBS_DIR = os.path.join(os.getcwd(), "stub_flasher")
+from esptool import loader
+loader.STUBS_DIR = os.path.join(os.getcwd(), "stub_flasher")
 
 import yaml  # pip install pyyaml
 import io
 import re
 import traceback
 
-TOOL_VERSION = "v1.0.2 Lite"
+TOOL_VERSION = "v1.0.3 Lite"
 
 cur_dir = os.getcwd()  # 当前目录
 
